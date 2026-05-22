@@ -24,16 +24,22 @@ python evaluation.py
 
 This will generate a per-instance performance report and a summary of your model's average recall and edge reduction.
 
-## Current Performance
-Based on an evaluation across 500 test instances, our GNN-augmented approach significantly outperforms standard optimization techniques by intelligently pruning the edge search space.
+### Current Performance
 
-| Metric | Baseline (Raw LP) | GNN-Hybrid Solver |
-| :--- | :--- | :--- |
-| **Optimal Edge Recall** | 62.02% | **97.67%** |
-| **Edge Search Space** | 100% (Full Graph) | **53.86%** (46.14% reduction) |
+Based on an evaluation across 500 test instances, our GNN-augmented pipeline drastically reduces computational overhead by intelligently pruning the edge search space, while maintaining a clear trade-off between local edge prediction and global structural relaxation.
 
-* **Recall:** By predicting optimal edges, the GNN ensures that 97.67% of the edges required for the optimal tour are preserved.
-* **Efficiency:** The GNN prunes 46.14% of the search space, drastically reducing the number of variables the LP solver must consider, leading to faster convergence and lower memory consumption compared to a standard LP relaxation.
+
+| Metric | Baseline (Raw LP) | GNN-Only Filter | GNN-LP Hybrid Pipeline |
+| :--- | :---: | :---: | :---: |
+| **Optimal Edge Recall** | 62.02% | **97.67%** | 62.02% |
+| **Edge Search Space Remaining** | 100.00% (Full Graph) | 53.86% | **53.86% (Sparse Subgraph)** |
+| **Edge Reduction Rate** | 0.00% | 46.14% | **46.14% Pruned** |
+
+#### Key Insights
+
+* **GNN Filtering Accuracy (97.67% Recall):** Acting as a local heuristic, the GNN successfully identifies and preserves **97.67%** of the true optimal tour edges. This proves the neural network highly understands what a good TSP path looks like, keeping nearly the entire true tour intact.
+* **Search Space Pruning (46.14% Reduction):** The GNN successfully discards **46.14%** of the useless background edges from the graph. By feeding a sparse subgraph containing only 53.86% of the original variables into the LP solver, we achieve massive computational efficiency, faster matrix convergence, and significantly lower memory consumption.
+* **The Hybrid Recall Bottleneck (62.02%):** When the pruned graph is handed to the LP solver, the final hybrid recall drops back to **62.02%**—matching the baseline exactly. This happens because the continuous LP relaxation lacks Subtour Elimination Constraints (SECs). Even on a heavily cleaned graph, the solver still resorts to fractional edge weights (e.g., $0.5$) and disconnected loops to satisfy its degree-2 constraints.
 
 ## Threshold Analysis Results
 
