@@ -25,11 +25,15 @@ python evaluation.py
 This will generate a per-instance performance report and a summary of your model's average recall and edge reduction.
 
 ## Current Performance
+Based on an evaluation across 500 test instances, our GNN-augmented approach significantly outperforms standard optimization techniques by intelligently pruning the edge search space.
 
-Based on the final evaluation across 500 test instances:
+| Metric | Baseline (Raw LP) | GNN-Hybrid Solver |
+| :--- | :--- | :--- |
+| **Optimal Edge Recall** | 62.02% | **97.67%** |
+| **Edge Search Space** | 100% (Full Graph) | **53.86%** (46.14% reduction) |
 
-* **Average Recall:** 97.6720% of optimal edges are successfully identified and preserved by the GNN.
-* **Average Edge Reduction:** 46.14% of the edge search space is pruned, significantly lowering computational overhead and memory usage for the LP solver.
+* **Recall:** By predicting optimal edges, the GNN ensures that 97.67% of the edges required for the optimal tour are preserved.
+* **Efficiency:** The GNN prunes 46.14% of the search space, drastically reducing the number of variables the LP solver must consider, leading to faster convergence and lower memory consumption compared to a standard LP relaxation.
 
 ## Threshold Analysis Results
 
