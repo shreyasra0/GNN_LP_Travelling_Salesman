@@ -1,10 +1,12 @@
 import numpy as np
+import os
 from scipy.spatial.distance import pdist, squareform
 
 def load_tsp(filepath):
     coords = []
     with open(filepath, 'r') as f:
         lines = f.readlines()
+        start = 0
         for i, line in enumerate(lines):
             if "NODE_COORD_SECTION" in line:
                 start = i + 1
@@ -13,7 +15,10 @@ def load_tsp(filepath):
             if "EOF" in line: break
             parts = line.split()
             coords.append([float(parts[1]), float(parts[2])])
-    return np.array(coords)
+    
+    coords = np.array(coords)
+    coords = (coords - coords.min(axis=0)) / (coords.max(axis=0) - coords.min(axis=0) + 1e-9)
+    return coords
 
 def get_knn_adj(coords, k=10):
     dist_matrix = squareform(pdist(coords, 'euclidean'))
@@ -28,7 +33,7 @@ def get_knn_adj(coords, k=10):
     adj += np.eye(num_nodes)
     
     degree = np.sum(adj, axis=1)
-    d_inv_sqrt = np.power(degree, -0.5, where=degree!=0)
+    d_inv_sqrt = np.power(degree, -0.5, where=degree!=0, out=np.zeros_like(degree))
     d_mat_inv_sqrt = np.diag(d_inv_sqrt)
     
     return d_mat_inv_sqrt @ adj @ d_mat_inv_sqrt
@@ -37,6 +42,7 @@ def get_edge_labels(tour_filepath, num_nodes):
     tour = []
     with open(tour_filepath, 'r') as f:
         lines = f.readlines()
+        start = 0
         for i, line in enumerate(lines):
             if "TOUR_SECTION" in line:
                 start = i + 1
